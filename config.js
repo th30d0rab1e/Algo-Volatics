@@ -14,7 +14,7 @@ var dbconfig = {
 const Alpaca = require('@alpacahq/alpaca-trade-api')
 
 const apiConfig = new Alpaca({
-    keyId: 'ID',
+    keyId: 'ID', 
     secretKey: 'Key',
     paper: true,
 })
