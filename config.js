@@ -2,7 +2,7 @@
 var dbconfig = {
     "server": 'localhost',
     "user": 'sa',
-    "password": 'Nerdman11656680',
+    "password": 'Password',
     "database": 'ALPACA',
     "port": 1433,
     "dialect": 'mssql',
@@ -14,8 +14,8 @@ var dbconfig = {
 const Alpaca = require('@alpacahq/alpaca-trade-api')
 
 const apiConfig = new Alpaca({
-    keyId: 'PK4SONQJ2T48HHU7C92U',
-    secretKey: 'jhSTLclqj5qpcTk/GTPw0BDcPCPOAI0tUZiVx5iD',
+    keyId: 'ID',
+    secretKey: 'Key',
     paper: true,
 })
 
