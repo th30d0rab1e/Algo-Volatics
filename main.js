@@ -100,7 +100,7 @@ async function fetchOrders () {
         return array;
         
     } catch (error) {
-        console.log("fetchOrders", error.message)
+        console.log("fetchOrders()", error.message)
     }
 }
 
@@ -116,7 +116,7 @@ async function main() {
         await downloadToDatabase();
         await imitate(importValues.history);
         await trade();
-        await liquidate();
+        //await liquidate();
         await db.drainPool();
     } catch (error) {
         console.log("main() ", error);
@@ -134,15 +134,16 @@ async function fetchBalance () {
 
 async function trade() {
     try {
-        let newOrders = importValues.tradeCalculation;
-        if (newOrders.length > 0) { 
-            let order = newOrders[0];
-            await createOrder(order);
-        }
+        if(importValues.isMarketOpen){
+            importValues.tradeCalculation = await fetchTradeCalculation();
+            let newOrders = importValues.tradeCalculation;
+            if (newOrders.length > 0) { 
+                let order = newOrders[0];
+                await createOrder(order);
+            }
+        } 
     } catch (error) {
         console.log("trade()", error);
-        let order = newOrders[Math.floor(Math.random()*newOrders.length)];
-        await createOrder(order);
     }
 }
 
@@ -156,9 +157,9 @@ async function createOrder (order) {
             , time_in_force: order.ExpireType
             , limit_price: order.PriceToTrade
         })
-        console.log("Finished Trading.");
+        console.log("Finished Trading.", order.StockName);
     } catch (error) {
-        console.log("createOrder()", error.message)
+        console.log("createOrder()", error)
     }
 }
 
@@ -196,7 +197,6 @@ async function setup() {
         const history = updateStock();
         const balance = fetchBalance();
         const orders = fetchOrders();
-        const trades = fetchTradeCalculation();
         const marketStatus = fetchMarketStatus();
         const positions = fetchPositions();
 
@@ -205,7 +205,6 @@ async function setup() {
         importValues.history = await history;
         importValues.buyingPower = await balance;
         importValues.orders = await orders;
-        importValues.tradeCalculation = await trades;
         importValues.isMarketOpen = await marketStatus;
         importValues.positions = await positions;
 
@@ -223,7 +222,7 @@ async function updateStock() {
         importValues.stockToUpdate  = liststock[0];
         
         //Get history
-        var interval = 'minute' //'minute' | '1Min' | '5Min' | '15Min' | 'day' | '1D'
+        var interval = '15Min' //'minute' | '1Min' | '5Min' | '15Min' | 'day' | '1D'
         var limit = 0; 
         var amountOfDays = 100
         var date = new Date();
@@ -248,8 +247,12 @@ async function updateStock() {
             let formattedDate = new Date(history[i].startEpochTime * 1000);
             formattedDate = formattedDate.toLocaleString('en-GB', { hour12:false } )
             formattedDate = formattedDate.replace(",", "");
+            
             array.push( {StockName: importValues.stockToUpdate.StockName, Price: history[i].openPrice, Date: formattedDate } )
+            array.push( {StockName: importValues.stockToUpdate.StockName, Price: history[i].closePrice, Date: formattedDate } )
         }
+
+        //7/18/2020 09:28:00
         return array;
 
     } catch (error) {
