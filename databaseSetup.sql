@@ -204,7 +204,7 @@ BEGIN
 
 DECLARE @Profit float, @Balance float, @Allowance float, @DayOfWeek int, @amountShared float, @percentage float, @ProfitThisWeek float, @endingProfit float;
 
-SELECT @Profit = SUM(RealCapitol)
+SELECT @Profit = ISNULL(SUM(RealCapitol), 0)
 ,@DayOfWeek = DATEPART(dw, GETDATE())
 FROM Stock
 WHERE RealCapitol > 0
@@ -241,7 +241,7 @@ SELECT @Balance = Value
 FROM Config
 WHERE Description = 'Balance'
 
-SELECT @Allowance = @Balance - (@Profit - @amountShared);
+SELECT @Allowance = ISNULL(@Balance - (@Profit - @amountShared), 0);
 
 UPDATE Config SET Value = CAST(@Allowance as varchar)
 WHERE [Description] = 'Allowance'
@@ -453,5 +453,6 @@ INSERT INTO Config VALUES ('Allowance', '0')
 INSERT INTO Config VALUES ('Day Trade Policy', '1')
 INSERT INTO Config VALUES ('Trading Fee', '0')
 INSERT INTO Config VALUES ('Bracket Orders', '0')
+INSERT INTO Config VALUES ('SharePercentage', '10')
 
 /* End Data Setup */
